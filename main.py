@@ -15,7 +15,6 @@ def download_image(url, download_name):
         
 def get_save_type():
     save_type = int(input(Fore.LIGHTCYAN_EX + "\nSave image as... \n[1] JPG\n[2] PNG\n[3] PDF\n> " + Fore.WHITE))
-
     match save_type:
         case 1:
             save_type = ".jpg"
@@ -59,12 +58,12 @@ if response.status_code == 200:
         image_name = image['alt'] 
         
         # Printing out image details
-        print(Fore.YELLOW + "Image source: ", Fore.WHITE + image_source, Fore.YELLOW + "\nImage name: ", Fore.WHITE + image_name)
+        print(Fore.YELLOW + "\nImage source: ", Fore.WHITE + image_source, Fore.YELLOW + "\nImage name: ", Fore.WHITE + image_name)
         # Get file type to save image as, then add that to image name then download
         save_type = get_save_type()
         image_name = clean_name(image_name) + save_type
         
-        print("Downloading...")
+        print(Fore.YELLOW + "\nDownloading...")
         
         try:
             download_image(image_source, image_name)
