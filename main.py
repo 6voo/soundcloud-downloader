@@ -1,13 +1,16 @@
 import requests
 from colorama import Fore, init
 from bs4 import BeautifulSoup
+from pathlib import Path
 
 init(autoreset=True)
     
 def download_image(url, download_name):
     response = requests.get(url)
-    
-    with open(download_name, 'wb') as file:
+    downloads_path = Path.home() / "Downloads"
+    file_path = downloads_path / download_name
+
+    with open(file_path, 'wb') as file:
         file.write(response.content)
         
 def get_save_type():
@@ -65,7 +68,7 @@ if response.status_code == 200:
         
         try:
             download_image(image_source, image_name)
-            print(Fore.GREEN + 'Download successful!')
+            print(Fore.GREEN + 'Download successful! Check your Downloads path.')
         except Exception as e:
             print(Fore.RED + f"Error: {e}")
 
