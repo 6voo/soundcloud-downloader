@@ -56,15 +56,17 @@ def download_soundcloud_image():
     # Then proceeds to download it
     if image:
         image_source = image['src']
-        image_name = image['alt'] 
+        # image_name = image['alt'] -- NOTE: Not needed as image name will use the same name as the audio name
         
         # Printing out image details
         print(Fore.YELLOW + "\nImage source: ", Fore.WHITE + image_source, Fore.YELLOW + "\nImage name: ", Fore.WHITE + image_name)
         # Get file type to save image as, then add that to image name then download
         save_type = get_save_type()
-        image_name = clean_name(image_name) + save_type
+        image_name = filename.split('.')[:-1]
+        image_name = "".join(image_name)
+        image_name = f"{image_name}{save_type}"
         
-        print(Fore.YELLOW + "\nDownloading image...")
+        print(Fore.YELLOW + f"\nDownloading image as {image_name}...")
         
         try:
             download_image(image_source, image_name)
@@ -75,7 +77,12 @@ def download_soundcloud_image():
     else:
         print(Fore.RED + "Image not found.")    
         
-            
+filename = None       
+def hook(d):
+    global filename
+    if d['status'] == 'finished':
+        filename = d['filename']
+                    
 def download_soundcloud_audio(url):
           
     downloads_path = Path.home() / "Downloads"
@@ -85,8 +92,9 @@ def download_soundcloud_audio(url):
         'format': 'bestaudio/best',  # Download best audio quality
         # Suppress any output or warnings for clean look
         'quiet': True,
-        'no_warnings': True
-        #'outtmpl': downloads_path / f"{image_name}.mp3"
+        'no_warnings': True,
+        'outtmpl': '%(title)s.%(ext)s',
+        'progress_hooks': [hook],
     }
     
     try:
@@ -100,6 +108,7 @@ def download_soundcloud_audio(url):
             except Exception as e:
                 pass
         print(Fore.GREEN + "Audio download successful!")
+        print(Fore.GREEN + f"Downloaded file as {filename}")
     except Exception as e:
         print(Fore.RED + f"Error: {e}")
 
