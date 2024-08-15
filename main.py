@@ -8,8 +8,6 @@ from pathlib import Path
 
 init(autoreset=True)
 
-
-    
 def download_image(url, download_name):
     response = requests.get(url)
     downloads_path = Path.home() / "Downloads"
@@ -48,7 +46,9 @@ def clean_name(name):
     return name  
 
 # Download the image from the Soundcloud Url
-def download_soundcloud_image():
+def download_soundcloud_image(url):
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
     # Find's the "img" tag in html
     image = soup.find('img')  
     
@@ -57,12 +57,12 @@ def download_soundcloud_image():
     if image:
         image_source = image['src']
         # image_name = image['alt'] -- NOTE: Not needed as image name will use the same name as the audio name
-        
+        image_name = filename.split('.')[:-1]
+        image_name = "".join(image_name)
         # Printing out image details
         print(Fore.YELLOW + "\nImage source: ", Fore.WHITE + image_source, Fore.YELLOW + "\nImage name: ", Fore.WHITE + image_name)
         # Get file type to save image as, then add that to image name then download
         save_type = get_save_type()
-        image_name = filename.split('.')[:-1]
         image_name = "".join(image_name)
         image_name = f"{image_name}{save_type}"
         
@@ -121,13 +121,17 @@ def download_soundcloud_audio(url):
     except Exception as e:
         print(Fore.RED + f"Error: {e}")
 
-url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
+def main():
+    url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
 
-response = requests.get(url)
-soup = BeautifulSoup(response.text, 'html.parser')
+    response = requests.get(url)
+    soup = BeautifulSoup(response.text, 'html.parser')
 
-if response.status_code == 200:
-    download_soundcloud_image()
-    download_soundcloud_audio(url)
-else:
-    print(Fore.RED + "Failed to retrieve page.")
+    if response.status_code == 200:
+        download_soundcloud_audio(url)
+        download_soundcloud_image(url)
+    else:
+        print(Fore.RED + "Failed to retrieve page.")
+        
+if __name__ == "__main__":
+    main()
