@@ -45,6 +45,14 @@ def clean_name(name):
         
     return name  
 
+def validate_url(url):
+    if url.startswith("https://soundcloud.com"):
+        pass
+    elif url.startswith("soundcloud.com"):
+        url = "https://" + url
+    
+    url = url.split('?')[0] 
+    return url
 # Download the image from the Soundcloud Url
 def download_soundcloud_image(url):
     response = requests.get(url)
@@ -123,13 +131,14 @@ def download_soundcloud_audio(url):
 
 def main():
     url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
+    final_url = validate_url(url)
 
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     if response.status_code == 200:
-        download_soundcloud_audio(url)
-        download_soundcloud_image(url)
+        download_soundcloud_audio(final_url)
+        download_soundcloud_image(final_url)
     else:
         print(Fore.RED + "Failed to retrieve page.")
         
