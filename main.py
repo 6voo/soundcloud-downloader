@@ -84,29 +84,38 @@ def hook(d):
         filename = d['filename']
                     
 def download_soundcloud_audio(url):
-          
     downloads_path = Path.home() / "Downloads"
-    downloads_path.mkdir(parents=True, exist_ok=True)
+    output_template = str(downloads_path / "%(title)s.%(ext)s")
+
     # Set the options for youtube_dl
     ydl_options = {
         'format': 'bestaudio/best',  # Download best audio quality
         # Suppress any output or warnings for clean look
         'quiet': True,
         'no_warnings': True,
-        'outtmpl': '%(title)s.%(ext)s',
+        'outtmpl': output_template,
         'progress_hooks': [hook],
+        'nopart': True
     }
     
+    # -- NOTE: Error turned out to be not that the file deleted itself,
+    # But that the audio file's date was set to a long time ago, so it 
+    # Was grouped differently
     try:
-        #print(Fore.YELLOW + f"Downloading to: {ydl_options['outtmpl']}")
+        print(Fore.YELLOW + f"Downloading to: {str(ydl_options['outtmpl']).split('%')[0]}")
         print(Fore.YELLOW + "Downloading audio...")
 
     # To not print the error
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
+            #full_path = Path(filename)
+
             try:
+                #os.utime(full_path, None)
                 ydl.download([url]) # The actual download function. The surrounding ones are decorative.
+                
             except Exception as e:
-                pass
+                print(Fore.RED + f"Error while downloading: {e}")
+                return
         print(Fore.GREEN + "Audio download successful!")
         print(Fore.GREEN + f"Downloaded file as {filename}")
     except Exception as e:
@@ -118,7 +127,7 @@ response = requests.get(url)
 soup = BeautifulSoup(response.text, 'html.parser')
 
 if response.status_code == 200:
-    #download_soundcloud_image()
+    download_soundcloud_image()
     download_soundcloud_audio(url)
 else:
     print(Fore.RED + "Failed to retrieve page.")
