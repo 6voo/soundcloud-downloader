@@ -53,6 +53,7 @@ def validate_url(url):
     
     url = url.split('?')[0] 
     return url
+
 # Download the image from the Soundcloud Url
 def download_soundcloud_image(url):
     response = requests.get(url)
@@ -66,7 +67,7 @@ def download_soundcloud_image(url):
         image_source = image['src']
         # image_name = image['alt'] -- NOTE: Not needed as image name will use the same name as the audio name
         image_name = filename.split('.')[:-1]
-        image_name = "".join(image_name)
+        image_name = '.'.join(image_name)
         # Printing out image details
         print(Fore.YELLOW + "\nImage source: ", Fore.WHITE + image_source, Fore.YELLOW + "\nImage name: ", Fore.WHITE + image_name)
         # Get file type to save image as, then add that to image name then download
