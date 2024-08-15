@@ -1,9 +1,14 @@
+import os
+import sys
 import requests
+import youtube_dl
 from colorama import Fore, init
 from bs4 import BeautifulSoup
 from pathlib import Path
 
 init(autoreset=True)
+
+
     
 def download_image(url, download_name):
     response = requests.get(url)
@@ -42,12 +47,8 @@ def clean_name(name):
         
     return name  
 
-url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
-
-response = requests.get(url)
-soup = BeautifulSoup(response.text, 'html.parser')
-
-if response.status_code == 200:
+# Download the image from the Soundcloud Url
+def download_soundcloud_image():
     # Find's the "img" tag in html
     image = soup.find('img')  
     
@@ -63,15 +64,52 @@ if response.status_code == 200:
         save_type = get_save_type()
         image_name = clean_name(image_name) + save_type
         
-        print(Fore.YELLOW + "\nDownloading...")
+        print(Fore.YELLOW + "\nDownloading image...")
         
         try:
             download_image(image_source, image_name)
-            print(Fore.GREEN + 'Download successful! Check your Downloads path.')
+            print(Fore.GREEN + "Image download successful! Check your Downloads path.")
         except Exception as e:
             print(Fore.RED + f"Error: {e}")
 
     else:
-        print(Fore.RED + "Image not found.")
+        print(Fore.RED + "Image not found.")    
+        
+            
+def download_soundcloud_audio(url):
+          
+    downloads_path = Path.home() / "Downloads"
+    downloads_path.mkdir(parents=True, exist_ok=True)
+    # Set the options for youtube_dl
+    ydl_options = {
+        'format': 'bestaudio/best',  # Download best audio quality
+        # Suppress any output or warnings for clean look
+        'quiet': True,
+        'no_warnings': True
+        #'outtmpl': downloads_path / f"{image_name}.mp3"
+    }
+    
+    try:
+        #print(Fore.YELLOW + f"Downloading to: {ydl_options['outtmpl']}")
+        print(Fore.YELLOW + "Downloading audio...")
+
+    # To not print the error
+        with youtube_dl.YoutubeDL(ydl_options) as ydl:
+            try:
+                ydl.download([url]) # The actual download function. The surrounding ones are decorative.
+            except Exception as e:
+                pass
+        print(Fore.GREEN + "Audio download successful!")
+    except Exception as e:
+        print(Fore.RED + f"Error: {e}")
+
+url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
+
+response = requests.get(url)
+soup = BeautifulSoup(response.text, 'html.parser')
+
+if response.status_code == 200:
+    #download_soundcloud_image()
+    download_soundcloud_audio(url)
 else:
     print(Fore.RED + "Failed to retrieve page.")
