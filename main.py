@@ -168,7 +168,7 @@ def main():
     soup = BeautifulSoup(response.text, 'html.parser')
 
     if response.status_code == 200:
-        #download_soundcloud_audio(final_url)
+        download_soundcloud_audio(final_url)
         download_soundcloud_image(final_url)
     else:
         print(Fore.RED + "[!] Failed to retrieve page.")
