@@ -69,8 +69,14 @@ def clean_name(name):
 def validate_url(url):
     if url.startswith("https://soundcloud.com"):
         pass
+    elif url.startswith("https://soundcloud.com"):
+        pass
     elif url.startswith("soundcloud.com"):
         url = "https://" + url
+    else:
+        print(Fore.RED + "[!] Please check the URL and try again. ")
+        return False
+    
     
     url = url.split('?')[0] 
     return url
@@ -163,8 +169,11 @@ def download_soundcloud_audio(url):
 def main():
     url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
     final_url = validate_url(url)
+    
+    if not final_url:
+        return
 
-    response = requests.get(url)
+    response = requests.get(final_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     if response.status_code == 200:
