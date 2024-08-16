@@ -1,0 +1,9 @@
+{
+    "default_image_type": true,
+
+    "image_types": {
+        "jpg": true,
+        "pdf": false,
+        "png": false
+    }
+}

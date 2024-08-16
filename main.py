@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import requests
 import youtube_dl
 from colorama import Fore, init
@@ -14,6 +15,10 @@ init(autoreset=True)
 # [!] for errors or issues
 # [+] for successes or completions
 
+f = open("config.json")
+data = json.load(f)
+default_image_type = data["default_image_type"]
+
 def download_image(url, download_name):
     response = requests.get(url)
     downloads_path = Path.home() / "Downloads"
@@ -23,6 +28,16 @@ def download_image(url, download_name):
         file.write(response.content)
         
 def get_save_type():
+    
+    # Checks if default image type is true in config.json
+    # Then iterates through each save type, checks if valid then returns it
+    if default_image_type:
+        for key, value in data['image_types'].items():
+            if value:
+                save_type = f".{str(key)}"
+                print(Fore.YELLOW + "[~] Save type set to " + Fore.WHITE + save_type + Fore.YELLOW + " as default.")
+                return save_type
+            
     save_type = int(input(Fore.LIGHTCYAN_EX + "\nSave image as... \n[1] JPG\n[2] PNG\n[3] PDF\n> " + Fore.WHITE))
     match save_type:
         case 1:
@@ -39,7 +54,7 @@ def get_save_type():
             return save_type
         case _:
             save_type = ".jpg"
-            print(Fore.YELLOW + "[~] Save type set to '.jpg' as default.")
+            print(Fore.YELLOW + "[~] Save type set to" + Fore.WHITE + "'.jpg'" + Fore.YELLOW +  " as default.")
             return save_type
 
 # If the name isn't cleaned, downloading it will result in an error        
@@ -71,9 +86,16 @@ def download_soundcloud_image(url):
     # Then proceeds to download it
     if image:
         image_source = image['src']
-        # image_name = image['alt'] -- NOTE: Not needed as image name will use the same name as the audio name
-        image_name = filename.split('.')[:-1]
-        image_name = '.'.join(image_name)
+        # image_name = image['alt'] # -- NOTE: Not needed as image name will use the same name as the audio name
+        try:
+            image_name = filename.split('.')[:-1]
+            image_name = '.'.join(image_name)
+        except:
+            image_name = image['alt']
+        finally:
+            print(Fore.RED + "[!] Error while getting image name. Image name set to \'image\'.")
+            image_name = "image"
+            
         # Printing out image details
         print(Fore.YELLOW + "\n[*] Image source: ", Fore.WHITE + image_source) #, Fore.YELLOW + "\nImage name: ", Fore.WHITE + image_name)
         # Get file type to save image as, then add that to image name then download
@@ -144,7 +166,7 @@ def main():
     soup = BeautifulSoup(response.text, 'html.parser')
 
     if response.status_code == 200:
-        download_soundcloud_audio(final_url)
+        #download_soundcloud_audio(final_url)
         download_soundcloud_image(final_url)
     else:
         print(Fore.RED + "[!] Failed to retrieve page.")
