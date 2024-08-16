@@ -91,10 +91,12 @@ def download_soundcloud_image(url):
             image_name = filename.split('.')[:-1]
             image_name = '.'.join(image_name)
         except:
-            image_name = image['alt']
-        finally:
-            print(Fore.RED + "[!] Error while getting image name. Image name set to \'image\'.")
-            image_name = "image"
+            try:
+                image_name = image['alt']
+            except:
+                # This except is the last resort if the image doesn't have an alt.
+                print(Fore.RED + "[!] Error while getting image name. Image name set to \'image\'.")
+                image_name = "image"
             
         # Printing out image details
         print(Fore.YELLOW + "\n[*] Image source: ", Fore.WHITE + image_source) #, Fore.YELLOW + "\nImage name: ", Fore.WHITE + image_name)
