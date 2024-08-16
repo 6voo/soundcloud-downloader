@@ -67,18 +67,24 @@ def clean_name(name):
     return name  
 
 def validate_url(url):
-    if url.startswith("https://soundcloud.com"):
-        pass
-    elif url.startswith("https://soundcloud.com"):
+    if url.startswith("https://"):
+        url = url[8:]
+    if url.startswith("http://"):
+        url = url[7:]     
+    
+    if url.startswith("soundcloud.com"):
         pass
     elif url.startswith("soundcloud.com"):
-        url = "https://" + url
+        pass
+    elif url.startswith("soundcloud.net"):
+        pass
     else:
         print(Fore.RED + "[!] Please check the URL and try again. ")
         return False
     
-    
+    url = "https://" + url
     url = url.split('?')[0] 
+    print(Fore.YELLOW + "[~] Final URL: " + url)
     return url
 
 # Download the image from the Soundcloud Url
@@ -170,6 +176,7 @@ def main():
     url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
     final_url = validate_url(url)
     
+    # Return if the URL isn't valid or not SoundCloud's URL
     if not final_url:
         return
 
