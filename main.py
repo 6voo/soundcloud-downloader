@@ -118,7 +118,8 @@ def download_soundcloud_image(url):
         image_name = f"{image_name}{save_type}"
         
         print(Fore.YELLOW + f"\n[>] Downloading image to {image_name}...")
-        
+        print(Fore.YELLOW + "[>] Downloading image...") 
+               
         try:
             download_image(image_source, image_name)
             print(Fore.GREEN + "[+] Image download successful!") # Check your Downloads path.")
