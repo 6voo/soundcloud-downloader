@@ -18,8 +18,15 @@ init(autoreset=True)
 f = open("config.json")
 data = json.load(f)
 default_image_type = data["default_image_type"]
+download_sc_image = data["download_image"]
+download_sc_audio = data["download_audio"]
 
+# NOTE: -- THIS FUNCTION IS USELESS
 def download_image(url, download_name):
+    # Checks if they toggled the download image function, leaves if untoggled
+    if not download_sc_image:
+        return
+    
     response = requests.get(url)
     downloads_path = Path.home() / "Downloads"
     file_path = downloads_path / download_name
@@ -89,6 +96,10 @@ def validate_url(url):
 
 # Download the image from the Soundcloud Url
 def download_soundcloud_image(url):
+    # Checks if they toggled the download image function, leaves if untoggled
+    if not download_sc_image:
+        return
+    
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     # Find's the "img" tag in html
@@ -136,6 +147,10 @@ def hook(d):
         filename = d['filename']
                     
 def download_soundcloud_audio(url):
+    # Checks if they toggled the download audio function, leaves if untoggled
+    if not download_sc_audio:
+        return
+    
     downloads_path = Path.home() / "Downloads"
     output_template = str(downloads_path / "%(title)s.%(ext)s")
 
@@ -174,13 +189,19 @@ def download_soundcloud_audio(url):
         print(Fore.RED + f"[!] Error: {e}")
 
 def main():
+    
     url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
     final_url = validate_url(url)
     
-    # Return if the URL isn't valid or not SoundCloud's URL
+    # Returns if the URL isn't valid or not SoundCloud's URL
     if not final_url:
         return
 
+    # Returns if they have both download_image and download_audio as false
+    if not download_sc_audio and not download_sc_image:
+        print(Fore.RED + "[!] You have both 'download image' and 'download audio' toggled off. Please toggle at least one then try again.")
+        return
+    
     response = requests.get(final_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
