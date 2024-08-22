@@ -26,10 +26,8 @@ default_image_type = data["default_image_type"]
 download_sc_image = data["download_image"]
 download_sc_audio = data["download_audio"]
 custom_dir_toggle = data["custom_dir"]
-custom_dir = os.getenv("custom_dir")
+custom_dir = Path(os.getenv("custom_dir"))
 
-if custom_dir:
-    download_dir = custom_dir
     
 # NOTE: -- THIS FUNCTION IS USELESS
 def download_image(url, download_name):
@@ -156,6 +154,9 @@ def hook(d):
     if d['status'] == 'finished':
         filename = d['filename']
                     
+                 
+downloads_path = Path.home() / "Downloads"
+    
 def download_soundcloud_audio(url):
     # Checks if they toggled the download audio function, leaves if untoggled
     if not download_sc_audio:
@@ -166,7 +167,6 @@ def download_soundcloud_audio(url):
     if custom_dir_toggle:
         output_template = str(custom_dir / "%(title)s.%(ext)s")
     else:
-        downloads_path = Path.home() / "Downloads"
         output_template = str(downloads_path / "%(title)s.%(ext)s")
 
     # Set the options for youtube_dl
@@ -203,7 +203,7 @@ def download_soundcloud_audio(url):
     except Exception as e:
         print(Fore.RED + f"[!] Error: {e}")
         
-def check_custom_dir(directory):
+def check_custom_dir():
     # Returns if custom directory toggle is off
     if not custom_dir_toggle:
         return 0
@@ -233,13 +233,13 @@ def main():
     # Checks if it has custom directory toggled
     # Then checks if the custom directory exists    
     if custom_dir_toggle:
-        print(Fore.YELLOW + f"[>] Checking directory: {custom_dir}")
+        print(Fore.YELLOW + "[>] Checking directory:", Fore.WHITE + str(custom_dir))
     else:
-        print(Fore.YELLOW + f"[>] Checking directory: {download_dir}")
+        print(Fore.YELLOW + "[>] Checking directory:", Fore.WHITE + str(downloads_path))
 
-    file_path_error_code = check_custom_dir(custom_dir)
+    file_path_error_code = check_custom_dir()
     if file_path_error_code == 303:
-        print(Fore.RED + "[!] ERROR CODE 303: Directory", Fore.WHITE + custom_dir, Fore.RED + "does not exist.")
+        print(Fore.RED + "[!] ERROR CODE 303: Directory", Fore.WHITE + str(custom_dir), Fore.RED + "does not exist.")
         return
     else:
         print(Fore.GREEN + "[+] Directory exists. Continuing download process.")
@@ -249,9 +249,8 @@ def main():
     soup = BeautifulSoup(response.text, 'html.parser')
 
     if response.status_code == 200:
-        print(Fore.GREEN + "Valid link")
-        #download_soundcloud_audio(final_url)
-        #download_soundcloud_image(final_url)
+        download_soundcloud_audio(final_url)
+        download_soundcloud_image(final_url)
     else:
         print(Fore.RED + "[!] Failed to retrieve page.")
         
