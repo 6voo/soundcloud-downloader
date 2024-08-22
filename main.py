@@ -3,9 +3,10 @@ import sys
 import json
 import requests
 import youtube_dl
-from colorama import Fore, init
-from bs4 import BeautifulSoup
 from pathlib import Path
+from bs4 import BeautifulSoup
+from dotenv import load_dotenv
+from colorama import Fore, init
 
 init(autoreset=True)
 
@@ -15,12 +16,21 @@ init(autoreset=True)
 # [!] for errors or issues
 # [+] for successes or completions
 
+# Setting up interaction with other files 
+load_dotenv()
+
 f = open("config.json")
 data = json.load(f)
+
 default_image_type = data["default_image_type"]
 download_sc_image = data["download_image"]
 download_sc_audio = data["download_audio"]
+custom_dir_toggle = data["custom_dir"]
+custom_dir = os.getenv("custom_dir")
 
+if custom_dir:
+    download_dir = custom_dir
+    
 # NOTE: -- THIS FUNCTION IS USELESS
 def download_image(url, download_name):
     # Checks if they toggled the download image function, leaves if untoggled
@@ -128,7 +138,7 @@ def download_soundcloud_image(url):
         image_name = "".join(image_name)
         image_name = f"{image_name}{save_type}"
         
-        print(Fore.YELLOW + f"\n[>] Downloading image to {image_name}...")
+        print(Fore.YELLOW + f"\n[>] Downloading image to {image_name}")
         print(Fore.YELLOW + "[>] Downloading image...") 
                
         try:
@@ -151,8 +161,13 @@ def download_soundcloud_audio(url):
     if not download_sc_audio:
         return
     
-    downloads_path = Path.home() / "Downloads"
-    output_template = str(downloads_path / "%(title)s.%(ext)s")
+    # Checks if custom directory is toggled, if true then makes download path to custom
+    # directory, if false it's to Downloads
+    if custom_dir_toggle:
+        output_template = str(custom_dir / "%(title)s.%(ext)s")
+    else:
+        downloads_path = Path.home() / "Downloads"
+        output_template = str(downloads_path / "%(title)s.%(ext)s")
 
     # Set the options for youtube_dl
     ydl_options = {
@@ -187,6 +202,19 @@ def download_soundcloud_audio(url):
         print(Fore.GREEN + f"[+] Downloaded audio to {filename}")
     except Exception as e:
         print(Fore.RED + f"[!] Error: {e}")
+        
+def check_custom_dir(directory):
+    # Returns if custom directory toggle is off
+    if not custom_dir_toggle:
+        return 0
+            
+    dir_exists = os.path.exists(custom_dir)
+    
+    # If directory exists, it passes through, else, it returns 303 (Error code for missing file path)
+    if dir_exists:
+        return 0
+    else:
+        return 303
 
 def main():
     
@@ -201,13 +229,29 @@ def main():
     if not download_sc_audio and not download_sc_image:
         print(Fore.RED + "[!] You have both 'download image' and 'download audio' toggled off. Please toggle at least one then try again.")
         return
-    
+
+    # Checks if it has custom directory toggled
+    # Then checks if the custom directory exists    
+    if custom_dir_toggle:
+        print(Fore.YELLOW + f"[>] Checking directory: {custom_dir}")
+    else:
+        print(Fore.YELLOW + f"[>] Checking directory: {download_dir}")
+
+    file_path_error_code = check_custom_dir(custom_dir)
+    if file_path_error_code == 303:
+        print(Fore.RED + "[!] ERROR CODE 303: Directory", Fore.WHITE + custom_dir, Fore.RED + "does not exist.")
+        return
+    else:
+        print(Fore.GREEN + "[+] Directory exists. Continuing download process.")
+        
+
     response = requests.get(final_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     if response.status_code == 200:
-        download_soundcloud_audio(final_url)
-        download_soundcloud_image(final_url)
+        print(Fore.GREEN + "Valid link")
+        #download_soundcloud_audio(final_url)
+        #download_soundcloud_image(final_url)
     else:
         print(Fore.RED + "[!] Failed to retrieve page.")
         

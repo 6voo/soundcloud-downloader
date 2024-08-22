@@ -1,6 +1,7 @@
 {
     "download_audio": true,
-    "download_image": false,
+    "download_image": true,
+    "custom_dir": false,
     "default_image_type": true,
     "image_types": {
         "jpg": true,
