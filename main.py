@@ -255,4 +255,9 @@ def main():
         print(Fore.RED + "[!] Failed to retrieve page.")
         
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(Fore.RED + f"[!] Error: {e}")
+        print(Fore.YELLOW + "[*] Press ENTER to close program.")
+        input()
