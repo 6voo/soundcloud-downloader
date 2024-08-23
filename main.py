@@ -27,7 +27,7 @@ except FileNotFoundError:
     print(Fore.YELLOW + "[~] Creating " + Fore.WHITE + "config.json" + Fore.YELLOW + "...")
     
     try:
-        response = requests.get("https://pastebin.com/raw/tM9heT9r") # config.json as pastebin
+        response = requests.get("https://pastebin.com/raw/tM9heT9r") # config.json in pastebin
     except Exception as e:
         print(Fore.RED + f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}")
         
@@ -42,7 +42,7 @@ except FileNotFoundError:
                     
         print(Fore.GREEN + "[+] Successfully created " + Fore.WHITE + "config.json")
 
-        
+f = open("config.json")        
 data = json.load(f)
 
 default_image_type = data["default_image_type"]
@@ -52,13 +52,26 @@ custom_dir_toggle = data["custom_dir"]
 
 try:
     custom_dir = Path(os.getenv("custom_dir"))
-except FileNotFoundError:
-    print(Fore.RED + "[!] .ENV file not found!")
-    print(Fore.YELLOW + f"[~] Creating .ENV file...")
+except:
+    print(Fore.RED + "[!] .env file not found!")
+    print(Fore.YELLOW + f"[~] Creating .env file...")
     
-    with open(".ENV", "w") as file:
-        default_env_file = "custom_dir=\"\""
-        file.writelines(default_env_file)
+    try:
+        response = requests.get("https://pastebin.com/raw/e45BJa3t") # .env in pastebin
+    except Exception as e:
+        print(Fore.RED + f"[!] Error while getting .env: {e}")
+        
+    if response.status_code == 200:
+        default_dotenv_file = response.text
+        print(Fore.GREEN + "[+] Successfully fetched " + Fore.WHITE + ".env file")
+        print(Fore.YELLOW + "[~] Writing to " + Fore.WHITE + ".env file")
+        
+        with open(".env", "w") as file:
+            file.writelines(default_dotenv_file)
+                    
+                    
+        print(Fore.GREEN + "[+] Successfully created " + Fore.WHITE + ".env")
+        
 
     
 # NOTE: -- THIS FUNCTION IS USELESS
