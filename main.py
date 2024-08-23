@@ -19,14 +19,46 @@ init(autoreset=True)
 # Setting up interaction with other files 
 load_dotenv()
 
-f = open("config.json")
+try:
+    f = open("config.json")
+except FileNotFoundError:
+    # Download config.json if file is not found
+    print(Fore.RED + "[!] File " + Fore.WHITE + "config.json" + Fore.RED + " not found.")
+    print(Fore.YELLOW + "[~] Creating " + Fore.WHITE + "config.json" + Fore.YELLOW + "...")
+    
+    try:
+        response = requests.get("https://pastebin.com/raw/tM9heT9r") # config.json as pastebin
+    except Exception as e:
+        print(Fore.RED + f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}")
+        
+    if response.status_code == 200:
+        default_json_file = response.text
+        print(Fore.GREEN + "[+] Successfully fetched " + Fore.WHITE + "config.json")
+        print(Fore.YELLOW + "[~] Writing to " + Fore.WHITE + "config.json")
+        
+        with open("config.json", "w") as file:
+            file.writelines(default_json_file)
+                    
+                    
+        print(Fore.GREEN + "[+] Successfully created " + Fore.WHITE + "config.json")
+
+        
 data = json.load(f)
 
 default_image_type = data["default_image_type"]
 download_sc_image = data["download_image"]
 download_sc_audio = data["download_audio"]
 custom_dir_toggle = data["custom_dir"]
-custom_dir = Path(os.getenv("custom_dir"))
+
+try:
+    custom_dir = Path(os.getenv("custom_dir"))
+except FileNotFoundError:
+    print(Fore.RED + "[!] .ENV file not found!")
+    print(Fore.YELLOW + f"[~] Creating .ENV file...")
+    
+    with open(".ENV", "w") as file:
+        default_env_file = "custom_dir=\"\""
+        file.writelines(default_env_file)
 
     
 # NOTE: -- THIS FUNCTION IS USELESS
