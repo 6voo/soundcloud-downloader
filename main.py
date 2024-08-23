@@ -19,15 +19,20 @@ init(autoreset=True)
 # Setting up interaction with other files 
 load_dotenv()
 
+# Loading the JSON file for configuration
+JSON_PASTEBIN = "https://pastebin.com/raw/1HS9T61H" # config.json in pastebin
+
 try:
     with open("config.json", "r") as f:
         data = json.load(f)
 except json.JSONDecodeError:
+     # Grab the contents of the Pastebin link and overwrite it with the defaults
+    
     print(Fore.RED + "[!] Error decoding " + Fore.WHITE + "config.json")
     print(Fore.YELLOW + "[~] Fixing " + Fore.WHITE + "config.json")
     
     try:
-        response = requests.get("https://pastebin.com/raw/tM9heT9r") # config.json in pastebin
+        response = requests.get(JSON_PASTEBIN)
     except Exception as e:
         print(Fore.RED + f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}")
 
@@ -38,13 +43,15 @@ except json.JSONDecodeError:
         
         with open("config.json", "w") as file:
             file.writelines(default_json_file)
+            
+        print(Fore.GREEN + "[+] Successfully finished writing to " + Fore.WHITE + "config.json")
 except FileNotFoundError:
     # Download config.json if file is not found
     print(Fore.RED + "[!] File " + Fore.WHITE + "config.json" + Fore.RED + " not found.")
     print(Fore.YELLOW + "[~] Creating " + Fore.WHITE + "config.json" + Fore.YELLOW + "...")
     
     try:
-        response = requests.get("https://pastebin.com/raw/tM9heT9r") # config.json in pastebin
+        response = requests.get(JSON_PASTEBIN) # config.json in pastebin
     except Exception as e:
         print(Fore.RED + f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}")
         
@@ -66,8 +73,10 @@ data = json.load(f)
 default_image_type = data["default_image_type"]
 download_sc_image = data["download_image"]
 download_sc_audio = data["download_audio"]
-custom_dir_toggle = data["custom_dir"]
+custom_dir_toggle = data["custom_directory_toggled"]
+custom_dir = data["custom_directory"]
 
+"""
 try:
     custom_dir = Path(os.getenv("custom_dir"))
 except:
@@ -89,7 +98,7 @@ except:
                     
                     
         print(Fore.GREEN + "[+] Successfully created " + Fore.WHITE + ".env")
-        
+"""        
 
     
 # NOTE: -- THIS FUNCTION IS USELESS
