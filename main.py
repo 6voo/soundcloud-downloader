@@ -20,7 +20,24 @@ init(autoreset=True)
 load_dotenv()
 
 try:
-    f = open("config.json")
+    with open("config.json", "r") as f:
+        data = json.load(f)
+except json.JSONDecodeError:
+    print(Fore.RED + "[!] Error decoding " + Fore.WHITE + "config.json")
+    print(Fore.YELLOW + "[~] Fixing " + Fore.WHITE + "config.json")
+    
+    try:
+        response = requests.get("https://pastebin.com/raw/tM9heT9r") # config.json in pastebin
+    except Exception as e:
+        print(Fore.RED + f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}")
+
+    if response.status_code == 200:
+        default_json_file = response.text
+        print(Fore.GREEN + "[+] Successfully fetched " + Fore.WHITE + "config.json")
+        print(Fore.YELLOW + "[~] Writing to " + Fore.WHITE + "config.json")
+        
+        with open("config.json", "w") as file:
+            file.writelines(default_json_file)
 except FileNotFoundError:
     # Download config.json if file is not found
     print(Fore.RED + "[!] File " + Fore.WHITE + "config.json" + Fore.RED + " not found.")
@@ -41,6 +58,7 @@ except FileNotFoundError:
                     
                     
         print(Fore.GREEN + "[+] Successfully created " + Fore.WHITE + "config.json")
+
 
 f = open("config.json")        
 data = json.load(f)
