@@ -75,6 +75,8 @@ download_sc_image = data["download_image"]
 download_sc_audio = data["download_audio"]
 custom_dir_toggle = data["custom_directory_toggled"]
 custom_dir = data["custom_directory"]
+# Turn it into a valid path so we can actually use it
+custom_dir = Path(custom_dir)
 
 """
 try:
