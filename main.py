@@ -111,7 +111,11 @@ def download_image(url, download_name):
     
     response = requests.get(url)
     downloads_path = Path.home() / "Downloads"
-    file_path = downloads_path / download_name
+    
+    if custom_dir_toggle:
+        file_path = custom_dir / download_name
+    else:
+        file_path = downloads_path / download_name
 
     with open(file_path, 'wb') as file:
         file.write(response.content)
@@ -183,10 +187,18 @@ def download_soundcloud_image(url):
         return
     
     response = requests.get(url)
+    response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, 'html.parser')
     # Find's the "img" tag in html
     image = soup.find('img')  
     
+    # When not using the name from the audio file, it just grabs the 
+    # image's alt, which becomes a problem when the title has fonts in it:
+    # It leads to weird characters instead of fonts
+    h1 = soup.find('h1')
+    a_tag = h1.find('a')
+    title = a_tag.text
+        
     # If the tag is found, it grabs the source and image name (alt)
     # Then proceeds to download it
     if image:
@@ -197,11 +209,14 @@ def download_soundcloud_image(url):
             image_name = '.'.join(image_name)
         except:
             try:
-                image_name = image['alt']
-            except:
-                # This except is the last resort if the image doesn't have an alt.
-                print(Fore.RED + "[!] Error while getting image name. Image name set to \'image\'.")
-                image_name = "image"
+                image_name = title
+            except:     
+                try:
+                    image_name = image['alt']
+                except:
+                    # This except is the last resort if the image doesn't have an alt.
+                    print(Fore.RED + "[!] Error while getting image name. Image name set to \'image\'.")
+                    image_name = "image"
             
         # Printing out image details
         print(Fore.YELLOW + "\n[*] Image source: ", Fore.WHITE + image_source) #, Fore.YELLOW + "\nImage name: ", Fore.WHITE + image_name)
