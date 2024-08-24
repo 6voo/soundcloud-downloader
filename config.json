@@ -1,8 +1,8 @@
 {
-    "download_audio": true,
+    "download_audio": false,
     "download_image": true,
-    "custom_directory_toggled": true,
-    "custom_directory": "C:/Users/User/Music",
+    "custom_directory_toggled": false,
+    "custom_directory": "C:/Users/User/Downloads",
     "default_image_type": true,
     "image_types": {
         "jpg": true,

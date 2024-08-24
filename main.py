@@ -331,7 +331,10 @@ def main():
 if __name__ == "__main__":
     try:
         main()
+        print(Fore.LIGHTCYAN_EX + "[*] Press ENTER to close program.")
+        input()
+
     except Exception as e:
         print(Fore.RED + f"[!] Error: {e}")
-        print(Fore.YELLOW + "[*] Press ENTER to close program.")
+        print(Fore.LIGHTCYAN_EX + "[*] Press ENTER to close program.")
         input()
