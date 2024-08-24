@@ -1,0 +1,12 @@
+{
+    "download_audio": true,
+    "download_image": true,
+    "custom_directory_toggled": false,
+    "custom_directory": "C:/Users/User/Music",
+    "default_image_type": true,
+    "image_types": {
+        "jpg": true,
+        "pdf": false,
+        "png": false
+    }
+}
