@@ -347,21 +347,19 @@ def main():
         download_soundcloud_image(final_url)
         
         # Edit the metadata
+        audio_path = rf'{filename}'
+        print(f"Audio path: {audio_path}")
+
         try:
-            audio_path = rf'{filename}'
-            print(f"Audio path: {audio_path}")
             audio = MP3(audio_path, ID3=ID3)
-            audio.tags.add(WOAR(encoding=3, url=final_url))
-            audio.save()
-            print(Fore.GREEN + "[+] Successfully edited metadata")
         except ID3NoHeaderError:
-            audio_path = rf'{filename}'
             audio = MP3(audio_path)
             audio.add_tags()
-            
-            audio_path = rf'{filename}'
-            print(f"Audio path: {audio_path}")
             audio = MP3(audio_path, ID3=ID3)
+
+        if audio.tags is None:
+            audio.add_tags() 
+        try:
             audio.tags.add(WOAR(encoding=3, url=final_url))
             audio.save()
             print(Fore.GREEN + "[+] Successfully edited metadata")
