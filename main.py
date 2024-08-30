@@ -8,7 +8,7 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from colorama import Fore, init
 from mutagen.easyid3 import EasyID3
-from mutagen.id3 import ID3, WOAR, ID3NoHeaderError
+from mutagen.id3 import ID3, WOAR, ID3NoHeaderError, TIT2
 from mutagen.mp3 import MP3
 
 init(autoreset=True)
@@ -360,7 +360,21 @@ def main():
         if audio.tags is None:
             audio.add_tags() 
         try:
-            audio.tags.add(WOAR(encoding=3, url=final_url))
+            audio_name = filename.split("\\")[-1]
+            audio_title = "".join(audio_name.split(".")[:1])
+            
+            try:
+                audio.tags.add(WOAR(encoding=3, url=final_url))
+                print(Fore.GREEN + "[+] Successfully edited metadata audio origin to url.")
+            except:
+                print(Fore.YELLOW + "[!] Minor error, could not edit audio origin to url.")
+                
+            try:
+                audio.tags.add(TIT2(encoding=3, text=audio_title))
+                print(Fore.GREEN + "[+] Successfully edited metadata audio title to title.")
+            except:
+                print(Fore.YELLOW + "[!] Minor error, could not edit metadata audio title to title.")    
+                
             audio.save()
             print(Fore.GREEN + "[+] Successfully edited metadata")
         except Exception as e:
