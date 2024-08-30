@@ -7,6 +7,9 @@ from pathlib import Path
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from colorama import Fore, init
+from mutagen.easyid3 import EasyID3
+from mutagen.id3 import ID3, WOAR, ID3NoHeaderError
+from mutagen.mp3 import MP3
 
 init(autoreset=True)
 
@@ -304,7 +307,8 @@ def check_custom_dir():
         return 0
     else:
         return 303
-
+    
+    
 def main():
     
     url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
@@ -337,9 +341,33 @@ def main():
     response = requests.get(final_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
+    # Downloading the audio and image
     if response.status_code == 200:
         download_soundcloud_audio(final_url)
         download_soundcloud_image(final_url)
+        
+        # Edit the metadata
+        try:
+            audio_path = rf'{filename}'
+            print(f"Audio path: {audio_path}")
+            audio = MP3(audio_path, ID3=ID3)
+            audio.tags.add(WOAR(encoding=3, url=final_url))
+            audio.save()
+            print(Fore.GREEN + "[+] Successfully edited metadata")
+        except ID3NoHeaderError:
+            audio_path = rf'{filename}'
+            audio = MP3(audio_path)
+            audio.add_tags()
+            
+            audio_path = rf'{filename}'
+            print(f"Audio path: {audio_path}")
+            audio = MP3(audio_path, ID3=ID3)
+            audio.tags.add(WOAR(encoding=3, url=final_url))
+            audio.save()
+            print(Fore.GREEN + "[+] Successfully edited metadata")
+        except Exception as e:
+            print(Fore.RED + f"[!] Error: {e}")
+            print(Fore.RED + "[!] Failed to edit metadata.")
     else:
         print(Fore.RED + "[!] Failed to retrieve page.")
         
