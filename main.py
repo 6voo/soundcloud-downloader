@@ -40,12 +40,12 @@ except json.JSONDecodeError:
         print(Fore.RED + f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}")
 
     if response.status_code == 200:
-        default_json_file = response.text
+        default_json_file = response.json()
         print(Fore.GREEN + "[+] Successfully fetched " + Fore.WHITE + "config.json")
         print(Fore.YELLOW + "[~] Writing to " + Fore.WHITE + "config.json")
         
         with open("config.json", "w") as file:
-            file.writelines(default_json_file)
+            json.dump(default_json_file, file, indent=4)
             
         print(Fore.GREEN + "[+] Successfully finished writing to " + Fore.WHITE + "config.json")
 except FileNotFoundError:
@@ -64,7 +64,7 @@ except FileNotFoundError:
         print(Fore.YELLOW + "[~] Writing to " + Fore.WHITE + "config.json")
         
         with open("config.json", "w") as file:
-            file.writelines(default_json_file)
+            json.dump(default_json_file, file, indent=4)
                     
                     
         print(Fore.GREEN + "[+] Successfully created " + Fore.WHITE + "config.json")
