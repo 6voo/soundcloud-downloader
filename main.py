@@ -197,29 +197,24 @@ def download_soundcloud_image(url):
     
     # When not using the name from the audio file, it just grabs the 
     # image's alt, which becomes a problem when the title has fonts in it:
-    # It leads to weird characters instead of fonts
-    h1 = soup.find('h1')
-    a_tag = h1.find('a')
-    title = a_tag.text
+    # It leads to weird characters instead of fonts # -- NOTE: It was an encoding problem
+
         
     # If the tag is found, it grabs the source and image name (alt)
     # Then proceeds to download it
     if image:
         image_source = image['src']
-        # image_name = image['alt'] # -- NOTE: Not needed as image name will use the same name as the audio name
+        image_alt = image['alt'] # -- NOTE: Not needed as image name will use the same name as the audio name <-- DISCARD THIS
         try:
             image_name = filename.split('.')[:-1]
             image_name = '.'.join(image_name)
         except:
             try:
-                image_name = title
+                image_name = image_alt
             except:     
-                try:
-                    image_name = image['alt']
-                except:
-                    # This except is the last resort if the image doesn't have an alt.
-                    print(Fore.RED + "[!] Error while getting image name. Image name set to \'image\'.")
-                    image_name = "image"
+                # This except is the last resort if the image doesn't have an alt.
+                print(Fore.RED + "[!] Error while getting image name. Image name set to \'image\'.")
+                image_name = "image"
             
         # Printing out image details
         print(Fore.YELLOW + "\n[*] Image source: ", Fore.WHITE + image_source) #, Fore.YELLOW + "\nImage name: ", Fore.WHITE + image_name)
