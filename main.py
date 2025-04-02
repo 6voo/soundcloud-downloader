@@ -23,7 +23,7 @@ init(autoreset=True)
 load_dotenv()
 
 # Loading the JSON file for configuration
-JSON_PASTEBIN = "https://pastebin.com/raw/1HS9T61H" # config.json in pastebin
+JSON_PASTEBIN = "https://pastebin.com/FvRdduKZ" # config.json in pastebin
 
 try:
     with open("config.json", "r") as f:
