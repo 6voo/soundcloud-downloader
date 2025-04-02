@@ -1,13 +1,10 @@
 import os
-import sys
 import json
 import requests
 import youtube_dl
 from pathlib import Path
 from bs4 import BeautifulSoup
-from dotenv import load_dotenv
 from colorama import Fore, init
-from mutagen.easyid3 import EasyID3
 from mutagen.id3 import ID3, WOAR, ID3NoHeaderError, TIT2
 from mutagen.mp3 import MP3
 
@@ -19,11 +16,8 @@ init(autoreset=True)
 # [!] for errors or issues
 # [+] for successes or completions
 
-# Setting up interaction with other files 
-load_dotenv()
-
 # Loading the JSON file for configuration
-JSON_PASTEBIN = "https://pastebin.com/FvRdduKZ" # config.json in pastebin
+JSON_PASTEBIN = "https://pastebin.com/raw/FvRdduKZ" # config.json in pastebin
 
 try:
     with open("config.json", "r") as f:
@@ -80,30 +74,6 @@ custom_dir_toggle = data["custom_directory_toggled"]
 custom_dir = data["custom_directory"]
 # Turn it into a valid path so we can actually use it
 custom_dir = Path(custom_dir)
-
-"""
-try:
-    custom_dir = Path(os.getenv("custom_dir"))
-except:
-    print(Fore.RED + "[!] .env file not found!")
-    print(Fore.YELLOW + f"[~] Creating .env file...")
-    
-    try:
-        response = requests.get("https://pastebin.com/raw/e45BJa3t") # .env in pastebin
-    except Exception as e:
-        print(Fore.RED + f"[!] Error while getting .env: {e}")
-        
-    if response.status_code == 200:
-        default_dotenv_file = response.text
-        print(Fore.GREEN + "[+] Successfully fetched " + Fore.WHITE + ".env file")
-        print(Fore.YELLOW + "[~] Writing to " + Fore.WHITE + ".env file")
-        
-        with open(".env", "w") as file:
-            file.writelines(default_dotenv_file)
-                    
-                    
-        print(Fore.GREEN + "[+] Successfully created " + Fore.WHITE + ".env")
-"""        
 
     
 # NOTE: -- THIS FUNCTION IS USELESS
@@ -198,7 +168,6 @@ def download_soundcloud_image(url):
     # When not using the name from the audio file, it just grabs the 
     # image's alt, which becomes a problem when the title has fonts in it:
     # It leads to weird characters instead of fonts # -- NOTE: It was an encoding problem
-
         
     # If the tag is found, it grabs the source and image name (alt)
     # Then proceeds to download it
