@@ -343,7 +343,7 @@ def main():
         
         # Edit the metadata
         audio_path = rf'{filename}'
-        print(f"Audio path: {audio_path}")
+        print(Fore.LIGHTCYAN_EX + f"Audio path: {audio_path}")
 
         try:
             audio = MP3(audio_path, ID3=ID3)

@@ -1,0 +1,12 @@
+{
+    "download_audio": true,
+    "download_image": true,
+    "custom_directory_toggled": true,
+    "custom_directory": "",
+    "default_image_type": true,
+    "image_types": {
+        "jpg": true,
+        "pdf": false,
+        "png": false
+    }
+}
