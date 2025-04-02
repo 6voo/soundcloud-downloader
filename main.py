@@ -74,7 +74,6 @@ custom_dir_toggle = data["custom_directory_toggled"]
 custom_dir = data["custom_directory"]
 # Turn it into a valid path so we can actually use it
 custom_dir = Path(custom_dir)
-
     
 # NOTE: -- THIS FUNCTION IS USELESS
 def download_image(url, download_name):
@@ -274,7 +273,6 @@ def check_custom_dir():
     
     
 def main():
-    
     url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
     final_url = validate_url(url)
     
@@ -291,6 +289,8 @@ def main():
     # Then checks if the custom directory exists    
     if custom_dir_toggle:
         print(Fore.YELLOW + "[>] Checking directory:", Fore.WHITE + str(custom_dir))
+    elif custom_dir_toggle and data["custom_directory"] == "":
+        print(Fore.YELLOW + "[!] Custom directory has been set to current directory automatically. Did you leave \'custom_directory\' blank?")
     else:
         print(Fore.YELLOW + "[>] Checking directory:", Fore.WHITE + str(downloads_path))
 
@@ -312,7 +312,7 @@ def main():
         
         # Edit the metadata
         audio_path = rf'{filename}'
-        print(Fore.LIGHTCYAN_EX + f"Audio path: {audio_path}")
+        print(Fore.LIGHTCYAN_EX + f"[*] Audio path: {audio_path}")
 
         try:
             audio = MP3(audio_path, ID3=ID3)
