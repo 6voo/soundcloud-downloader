@@ -17,7 +17,7 @@ init(autoreset=True)
 # [+] for successes or completions
 
 # Loading the JSON file for configuration
-JSON_PASTEBIN = "https://pastebin.com/raw/FvRdduKZ" # config.json in pastebin
+JSON_PASTEBIN = "https://pastebin.com/raw/vKJGU70z" # config.json in pastebin
 
 try:
     with open("config.json", "r") as f:
