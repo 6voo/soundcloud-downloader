@@ -24,7 +24,6 @@ try:
         data = json.load(f)
 except json.JSONDecodeError:
      # Grab the contents of the Pastebin link and overwrite it with the defaults
-    
     print(Fore.RED + "[!] Error decoding " + Fore.WHITE + "config.json")
     print(Fore.YELLOW + "[~] Fixing " + Fore.WHITE + "config.json")
     
@@ -40,7 +39,7 @@ except json.JSONDecodeError:
         
         with open("config.json", "w") as file:
             json.dump(default_json_file, file, indent=4)
-            
+
         print(Fore.GREEN + "[+] Successfully finished writing to " + Fore.WHITE + "config.json")
 except FileNotFoundError:
     # Download config.json if file is not found
@@ -59,8 +58,7 @@ except FileNotFoundError:
         
         with open("config.json", "w") as file:
             json.dump(default_json_file, file, indent=4)
-                    
-                    
+                            
         print(Fore.GREEN + "[+] Successfully created " + Fore.WHITE + "config.json")
 
 
@@ -95,7 +93,6 @@ def download_image(url, download_name):
         file.write(response.content)
         
 def get_save_type():
-    
     # Checks if default image type is true in config.json
     # Then iterates through each save type, checks if valid then returns it
     if default_image_type:
@@ -166,15 +163,11 @@ def download_soundcloud_image(url):
     # Find's the "img" tag in html
     image = soup.find('img')  
     
-    # When not using the name from the audio file, it just grabs the 
-    # image's alt, which becomes a problem when the title has fonts in it:
-    # It leads to weird characters instead of fonts # -- NOTE: It was an encoding problem
-        
     # If the tag is found, it grabs the source and image name (alt)
     # Then proceeds to download it
     if image:
         image_source = image['src']
-        image_alt = image['alt'] # -- NOTE: Not needed as image name will use the same name as the audio name <-- DISCARD THIS
+        image_alt = image['alt'] 
         try:
             image_name = filename.split('.')[:-1]
             image_name = '.'.join(image_name)
@@ -198,7 +191,7 @@ def download_soundcloud_image(url):
                
         try:
             download_image(image_source, image_name)
-            print(Fore.GREEN + "[+] Image download successful!") # Check your Downloads path.")
+            print(Fore.GREEN + "[+] Image download successful!") 
         except Exception as e:
             print(Fore.RED + f"[!] Error: {e}")
 
@@ -246,17 +239,14 @@ def download_soundcloud_audio(url):
 
     # To not print the error
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
-            #full_path = Path(filename)
-
             try:
-                #os.utime(full_path, None)
                 ydl.download([url]) # The actual download function. The surrounding ones are decorative.
-                
             except Exception as e:
                 print(Fore.RED + f"[!] Error while downloading: {e}")
                 return
         print(Fore.GREEN + "[+] Audio download successful!")
         print(Fore.GREEN + f"[+] Downloaded audio to {filename}")
+        
     except Exception as e:
         print(Fore.RED + f"[!] Error: {e}")
         
