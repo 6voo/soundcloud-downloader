@@ -75,7 +75,7 @@ edit_metadata = data["edit_metadata"]
 # Turn it into a valid path so we can actually use it
 custom_dir = Path(custom_dir)
     
-# NOTE: -- THIS FUNCTION IS USELESS
+# NOTE: -- THIS FUNCTION IS USELESS <- Dear past me, from what I see, it is indeed useful. Ignored.
 def download_image(url, download_name):
     # Checks if they toggled the download image function, leaves if untoggled
     if not download_sc_image:
@@ -103,23 +103,17 @@ def get_save_type():
                 return save_type
             
     save_type = int(input(Fore.LIGHTCYAN_EX + "\nSave image as... \n[1] JPG\n[2] PNG\n[3] PDF\n> " + Fore.WHITE))
+    
     match save_type:
-        case 1:
+        case 1: save_type = ".jpg"
+        case 2: save_type = ".png"
+        case 3: save_type = ".pdf"
+        case _: 
             save_type = ".jpg"
-            print(Fore.GREEN + "[~] Save type set to ", save_type)
-            return save_type
-        case 2:
-            save_type = ".png"
-            print(Fore.GREEN + "[~] Save type set to ", save_type)
-            return save_type
-        case 3:
-            save_type = ".pdf"
-            print(Fore.GREEN + "[~] Save type set to ", save_type)
-            return save_type
-        case _:
-            save_type = ".jpg"
-            print(Fore.YELLOW + "[~] Save type set to" + Fore.WHITE + "'.jpg'" + Fore.YELLOW +  " as default.")
-            return save_type
+            print(Fore.YELLOW + "[~] No valid save type! Setting safe type to " + Fore.WHITE + "'.jpg'" + Fore.YELLOW +  " as default.")
+    
+    print(Fore.GREEN + "[~] Save type set to ", save_type)
+    return save_type
 
 # If the name isn't cleaned, downloading it will result in an error        
 def clean_name(name):
@@ -160,7 +154,7 @@ def download_soundcloud_image(url):
     response = requests.get(url)
     response.encoding = 'utf-8'
     soup = BeautifulSoup(response.text, 'html.parser')
-    # Find's the "img" tag in html
+    # Find's the "img" tag in html, which is where the image is stored (as of 2025)
     image = soup.find('img')  
     
     # If the tag is found, it grabs the source and image name (alt)
@@ -179,8 +173,7 @@ def download_soundcloud_image(url):
                 print(Fore.RED + "[!] Error while getting image name. Image name set to \'image\'.")
                 image_name = "image"
             
-        # Printing out image details
-        print(Fore.YELLOW + "\n[*] Image source: ", Fore.WHITE + image_source) #, Fore.YELLOW + "\nImage name: ", Fore.WHITE + image_name)
+        print(Fore.YELLOW + "\n[*] Image source: " + Fore.WHITE + image_source) 
         # Get file type to save image as, then add that to image name then download
         save_type = get_save_type()
         image_name = "".join(image_name)
@@ -208,7 +201,6 @@ def hook(d):
 downloads_path = Path.home() / "Downloads"
     
 def download_soundcloud_audio(url):
-    # Checks if they toggled the download audio function, leaves if untoggled
     if not download_sc_audio:
         return
     
@@ -230,9 +222,6 @@ def download_soundcloud_audio(url):
         'nopart': True
     }
     
-    # -- NOTE: Error turned out to be not that the file deleted itself,
-    # But that the audio file's date was set to a long time ago, so it 
-    # Was grouped differently
     try:
         print(Fore.YELLOW + f"[>] Downloading to: {str(ydl_options['outtmpl']).split('%')[0]}")
         print(Fore.YELLOW + "[>] Downloading audio...")
@@ -244,8 +233,9 @@ def download_soundcloud_audio(url):
             except Exception as e:
                 print(Fore.RED + f"[!] Error while downloading: {e}")
                 return
+            
         print(Fore.GREEN + "[+] Audio download successful!")
-        print(Fore.GREEN + f"[+] Downloaded audio to {filename}")
+        print(Fore.GREEN + "[+] Downloaded audio to " + Fore.WHITE + f"{filename}")
         
     except Exception as e:
         print(Fore.RED + f"[!] Error: {e}")
@@ -281,8 +271,8 @@ def main():
     # Then checks if the custom directory exists    
     if custom_dir_toggle:
         print(Fore.YELLOW + "[>] Checking directory:", Fore.WHITE + str(custom_dir))
-    elif custom_dir_toggle and data["custom_directory"] == "":
-        print(Fore.YELLOW + "[!] Custom directory has been set to current directory automatically. Did you leave \'custom_directory\' blank?")
+    elif custom_dir_toggle and custom_dir == "":
+        print(Fore.YELLOW + "[!] Custom directory has been set to current directory automatically. Did you leave \'", Fore.WHITE, "custom_directory\'", Fore.YELLOW, "vblank?")
     else:
         print(Fore.YELLOW + "[>] Checking directory:", Fore.WHITE + str(downloads_path))
 
@@ -293,7 +283,7 @@ def main():
     else:
         print(Fore.GREEN + "[+] Directory exists. Continuing download process.")
         
-
+        
     response = requests.get(final_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
@@ -343,10 +333,8 @@ def main():
 if __name__ == "__main__":
     try:
         main()
-        print(Fore.LIGHTCYAN_EX + "[*] Press ENTER to close program.")
-        input()
-
     except Exception as e:
         print(Fore.RED + f"[!] Error: {e}")
-        print(Fore.LIGHTCYAN_EX + "[*] Press ENTER to close program.")
-        input()
+        
+    print(Fore.LIGHTCYAN_EX + "[*] Press ENTER to close program.")
+    input()
