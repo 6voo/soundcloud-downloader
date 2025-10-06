@@ -1,14 +1,11 @@
 import main
 import json
 import requests
+import youtube_dl
 import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
-import os
-import json
-import requests
-import youtube_dl
-from pathlib import Path
+from threading import Thread
 from bs4 import BeautifulSoup
 from mutagen.id3 import ID3, WOAR, ID3NoHeaderError, TIT2
 from mutagen.mp3 import MP3
@@ -62,14 +59,17 @@ logs.tag_configure(tagName="default", foreground="black")
 
 #
 def log_output(string: str, tagName: str):
-    logs.configure(state="normal")
-    start_index = logs.index("end-1c") if logs.get("1.0", "end-1c") != "" else logs.index("1.0")
-    
-    logs.insert(start_index, string + "\n")
-    
-    end_index = logs.index(f"{start_index} + {len(string)}c")
-    logs.tag_add(tagName, start_index, end_index)
-    logs.configure(state="disabled")
+    def update_log():
+        logs.configure(state="normal")
+        start_index = logs.index("end-1c") if logs.get("1.0", "end-1c") != "" else logs.index("1.0")
+        
+        logs.insert(start_index, string + "\n")
+        
+        end_index = logs.index(f"{start_index} + {len(string)}c")
+        logs.tag_add(tagName, start_index, end_index)
+        logs.configure(state="disabled")
+        
+    root.after(0, update_log)
 
 ## ------------------------ DOWNLOAD FUNCTIONS ------------------- ##
 custom_dir = Path(custom_dir)
@@ -260,10 +260,23 @@ def main_function(url):
         download_soundcloud_audio(final_url)
         download_soundcloud_image(final_url)
 
+def threaded_download():
+    download_button.configure(state="disabled")
+    url_value = url.get()
+    
+    def run():
+        try: 
+            main_function(url_value)
+        finally:
+            root.after(0, lambda: download_button.configure(state="normal"))
+            
+    thread = Thread(target=run, daemon=True)
+    thread.start()
+                
 # Create a button to download
 download_button = ttk.Button(frame, text='Download')
 download_button.grid(column=2, row=0, sticky='W', **options)
-download_button.configure(command=lambda: main_function(url.get())) # Validates url then passes it to download
+download_button.configure(command=threaded_download) # Validates url then passes it to download
 
 if __name__ == "__main__":
     frame.grid(padx=10, pady=10)
