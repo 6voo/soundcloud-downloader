@@ -19,48 +19,50 @@ init(autoreset=True)
 # Loading the JSON file for configuration
 JSON_PASTEBIN = "https://pastebin.com/raw/vKJGU70z" # config.json in pastebin
 
-try:
-    with open("config.json", "r") as f:
-        data = json.load(f)
-except json.JSONDecodeError:
-     # Grab the contents of the Pastebin link and overwrite it with the defaults
-    print(Fore.RED + "[!] Error decoding " + Fore.WHITE + "config.json")
-    print(Fore.YELLOW + "[~] Fixing " + Fore.WHITE + "config.json")
-    
+def load_config():
     try:
-        response = requests.get(JSON_PASTEBIN)
-    except Exception as e:
-        print(Fore.RED + f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}")
-
-    if response.status_code == 200:
-        default_json_file = response.json()
-        print(Fore.GREEN + "[+] Successfully fetched " + Fore.WHITE + "config.json")
-        print(Fore.YELLOW + "[~] Writing to " + Fore.WHITE + "config.json")
+        with open("config.json", "r") as f:
+            data = json.load(f)
+    except json.JSONDecodeError:
+        # Grab the contents of the Pastebin link and overwrite it with the defaults
+        print(Fore.RED + "[!] Error decoding " + Fore.WHITE + "config.json")
+        print(Fore.YELLOW + "[~] Fixing " + Fore.WHITE + "config.json")
         
-        with open("config.json", "w") as file:
-            json.dump(default_json_file, file, indent=4)
+        try:
+            response = requests.get(JSON_PASTEBIN)
+        except Exception as e:
+            print(Fore.RED + f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}")
 
-        print(Fore.GREEN + "[+] Successfully finished writing to " + Fore.WHITE + "config.json")
-except FileNotFoundError:
-    # Download config.json if file is not found
-    print(Fore.RED + "[!] File " + Fore.WHITE + "config.json" + Fore.RED + " not found.")
-    print(Fore.YELLOW + "[~] Creating " + Fore.WHITE + "config.json" + Fore.YELLOW + "...")
-    
-    try:
-        response = requests.get(JSON_PASTEBIN) # config.json in pastebin
-    except Exception as e:
-        print(Fore.RED + f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}")
-        
-    if response.status_code == 200:
-        default_json_file = response.text
-        print(Fore.GREEN + "[+] Successfully fetched " + Fore.WHITE + "config.json")
-        print(Fore.YELLOW + "[~] Writing to " + Fore.WHITE + "config.json")
-        
-        with open("config.json", "w") as file:
-            json.dump(default_json_file, file, indent=4)
-                            
-        print(Fore.GREEN + "[+] Successfully created " + Fore.WHITE + "config.json")
+        if response.status_code == 200:
+            default_json_file = response.json()
+            print(Fore.GREEN + "[+] Successfully fetched " + Fore.WHITE + "config.json")
+            print(Fore.YELLOW + "[~] Writing to " + Fore.WHITE + "config.json")
+            
+            with open("config.json", "w") as file:
+                json.dump(default_json_file, file, indent=4)
 
+            print(Fore.GREEN + "[+] Successfully finished writing to " + Fore.WHITE + "config.json")
+    except FileNotFoundError:
+        # Download config.json if file is not found
+        print(Fore.RED + "[!] File " + Fore.WHITE + "config.json" + Fore.RED + " not found.")
+        print(Fore.YELLOW + "[~] Creating " + Fore.WHITE + "config.json" + Fore.YELLOW + "...")
+        
+        try:
+            response = requests.get(JSON_PASTEBIN) # config.json in pastebin
+        except Exception as e:
+            print(Fore.RED + f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}")
+            
+        if response.status_code == 200:
+            default_json_file = response.text
+            print(Fore.GREEN + "[+] Successfully fetched " + Fore.WHITE + "config.json")
+            print(Fore.YELLOW + "[~] Writing to " + Fore.WHITE + "config.json")
+            
+            with open("config.json", "w") as file:
+                json.dump(default_json_file, file, indent=4)
+                                
+            print(Fore.GREEN + "[+] Successfully created " + Fore.WHITE + "config.json")
+
+load_config()
 
 f = open("config.json")        
 data = json.load(f)
@@ -115,7 +117,7 @@ def get_save_type():
     print(Fore.GREEN + "[~] Save type set to ", save_type)
     return save_type
 
-# If the name isn't cleaned, downloading it will result in an error        
+# If the name isn't cleaned, downloading it will result in an error        <- never used this?
 def clean_name(name):
     banned_characters = ["\\", "/", ":", "*", "?", "<", ">", "|"]
     
