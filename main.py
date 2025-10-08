@@ -76,7 +76,7 @@ def load_config():
         log_output("[~] Creating config.json...", "ok")
         
         try:
-            response = requests.get(JSON_PASTEBIN) # config.json in pastebin
+            response = requests.get(JSON_PASTEBIN) 
         except Exception as e:
             log_output(f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}", "bad")
             
@@ -105,9 +105,8 @@ edit_metadata = data["edit_metadata"]
 # Turn it into a valid path so we can actually use it
 custom_dir = Path(custom_dir)
     
-# NOTE: -- THIS FUNCTION IS USELESS <- Dear past me, from what I see, it is indeed useful. Ignored.
+# Download image linked to Soundcloud audio 
 def download_image(url, download_name):
-    # Checks if they toggled the download image function, leaves if untoggled
     if not download_sc_image:
         return
     
@@ -155,12 +154,11 @@ def validate_url(url):
         url = url[8:]
     if url.startswith("http://"):
         url = url[7:]     
-    
+        
     if url.startswith("soundcloud.com"):
         pass
-    elif url.startswith("soundcloud.com"):
-        pass
-    elif url.startswith("soundcloud.net"):
+    elif url.startswith("m.soundcloud.com"):
+        url = "soundcloud.com"
         pass
     else:
         log_output("[!] Please check the URL and try again.", "bad")
@@ -173,7 +171,6 @@ def validate_url(url):
 
 # Download the image from the Soundcloud Url
 def download_soundcloud_image(url):
-    # Checks if they toggled the download image function, leaves if untoggled
     if not download_sc_image:
         return
     
@@ -278,10 +275,6 @@ def check_custom_dir():
         return 0
     else:
         return 303
-    
-
- 
-    
     
 def main():
     url = input(Fore.LIGHTCYAN_EX + "Enter Soundcloud URL\n> " + Fore.WHITE)
