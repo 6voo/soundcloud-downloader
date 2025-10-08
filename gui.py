@@ -107,7 +107,7 @@ def main_function(url):
         return
 
 
-    # compared to main.py, there seems to be a missing section here
+    # compared to main.py, there seems to be a missing section here, -honestly ill just work on it in a bit
 
 
     response = requests.get(final_url)
