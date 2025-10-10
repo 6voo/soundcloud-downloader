@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import requests
 import youtube_dl
@@ -7,9 +8,7 @@ from bs4 import BeautifulSoup
 from colorama import Fore, init
 from mutagen.id3 import ID3, WOAR, ID3NoHeaderError, TIT2
 from mutagen.mp3 import MP3
-
-import re
-
+import logger
 
 init(autoreset=True)
 
@@ -19,8 +18,8 @@ init(autoreset=True)
 # [!] for errors or issues
 # [+] for successes or completions
 
-
 # using this instead of print() so it's easeir to remove redundancies from gui.py
+
 def log_output(string: str, tagName: str = "default"):
     try:
         import tkinter as tk
@@ -45,7 +44,7 @@ def log_output(string: str, tagName: str = "default"):
         print(string)
 
 # Loading the JSON file for configuration
-JSON_PASTEBIN = "https://pastebin.com/raw/vKJGU70z" # config.json in pastebin
+JSON_PASTEBIN = "https://pastebin.com/raw/vKJGU70z" 
 
 def load_config():
     try:
@@ -53,42 +52,42 @@ def load_config():
             data = json.load(f)
     except json.JSONDecodeError:
         # Grab the contents of the Pastebin link and overwrite it with the defaults
-        log_output("[!] Error decoding config.json", "bad")
-        log_output("[~] Fixing config.json", "ok")
+        logger.log_output("[!] Error decoding config.json", "bad")
+        logger.log_output("[~] Fixing config.json", "ok")
         
         try:
             response = requests.get(JSON_PASTEBIN)
         except Exception as e:
-            log_output(f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}", "bad")
+            logger.log_output(f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}", "bad")
 
         if response.status_code == 200:
             default_json_file = response.json()
-            log_output("[+] Successfully fetched config.json", "good")
-            log_output("[~] Writing to config.json", "ok")
+            logger.log_output("[+] Successfully fetched config.json", "good")
+            logger.log_output("[~] Writing to config.json", "ok")
             
             with open("config.json", "w") as file:
                 json.dump(default_json_file, file, indent=4)
 
-            log_output("[+] Successfully finished writing to config.json", "good")
+            logger.log_output("[+] Successfully finished writing to config.json", "good")
     except FileNotFoundError:
         # Download config.json if file is not found
-        log_output("[!] File config.json not found.", "bad")
-        log_output("[~] Creating config.json...", "ok")
+        logger.log_output("[!] File config.json not found.", "bad")
+        logger.log_output("[~] Creating config.json...", "ok")
         
         try:
             response = requests.get(JSON_PASTEBIN) 
         except Exception as e:
-            log_output(f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}", "bad")
+            logger.log_output(f"[!] ERROR WHILE GETTING CONFIG.JSON: {e}", "bad")
             
         if response.status_code == 200:
             default_json_file = response.text
-            log_output("[+] Successfully fetched config.json", "good")
-            log_output("[~] Writing to config.json", "ok")
+            logger.log_output("[+] Successfully fetched config.json", "good")
+            logger.log_output("[~] Writing to config.json", "ok")
             
             with open("config.json", "w") as file:
                 json.dump(default_json_file, file, indent=4)
                                 
-            log_output("[+] Successfully created config.json", "good")
+            logger.log_output("[+] Successfully created config.json", "good")
 
 load_config()
 
@@ -128,7 +127,7 @@ def get_save_type():
         for key, value in data['image_types'].items():
             if value:
                 save_type = f".{str(key)}"
-                log_output(f"[~] Save type set to {save_type} as default.", "ok")
+                logger.log_output(f"[~] Save type set to {save_type} as default.", "ok")
                 return save_type
             
     save_type = int(input(Fore.LIGHTCYAN_EX + "\nSave image as... \n[1] JPG\n[2] PNG\n[3] PDF\n> " + Fore.WHITE))
@@ -139,9 +138,9 @@ def get_save_type():
         case 3: save_type = ".pdf"
         case _: 
             save_type = ".jpg"
-            log_output("[~] No valid save type! Setting safe type to '.jpg' as default.", "ok")
+            logger.log_output("[~] No valid save type! Setting safe type to '.jpg' as default.", "ok")
     
-    log_output(f"[~] Save type set to {save_type}", "good")
+    logger.log_output(f"[~] Save type set to {save_type}", "good")
     return save_type
 
 # If the name isn't cleaned, downloading it will result in an error        <- never used this?
@@ -161,12 +160,12 @@ def validate_url(url):
         url = "soundcloud.com"
         pass
     else:
-        log_output("[!] Please check the URL and try again.", "bad")
+        logger.log_output("[!] Please check the URL and try again.", "bad")
         return False
     
     url = "https://" + url
     url = url.split('?')[0] 
-    log_output(f"[~] Final URL: {url}", "ok")
+    logger.log_output(f"[~] Final URL: {url}", "ok")
     return url
 
 # Download the image from the Soundcloud Url
@@ -193,26 +192,26 @@ def download_soundcloud_image(url):
                 image_name = image_alt
             except:     
                 # This except is the last resort if the image doesn't have an alt.
-                log_output("[!] Error while getting image name. Image name set to 'image'.", "bad")
+                logger.log_output("[!] Error while getting image name. Image name set to 'image'.", "bad")
                 image_name = "image"
             
-        log_output(f"\n[*] Image source: {image_source}", "ok") 
+        logger.log_output(f"\n[*] Image source: {image_source}", "ok") 
         # Get file type to save image as, then add that to image name then download
         save_type = get_save_type()
         image_name = "".join(image_name)
         image_name = f"{image_name}{save_type}"
         
-        log_output(f"\n[>] Downloading image to {image_name}", "ok")
-        log_output("[>] Downloading image...", "ok") 
+        logger.log_output(f"\n[>] Downloading image to {image_name}", "ok")
+        logger.log_output("[>] Downloading image...", "ok") 
                
         try:
             download_image(image_source, image_name)
-            log_output("[+] Image download successful!", "good") 
+            logger.log_output("[+] Image download successful!", "good") 
         except Exception as e:
-            log_output(f"[!] Error: {e}", "bad")
+            logger.log_output(f"[!] Error: {e}", "bad")
 
     else:
-        log_output("[!] Error: Image not found.", "bad")    
+        logger.log_output("[!] Error: Image not found.", "bad")    
         
 filename = None       
 def hook(d):
@@ -246,22 +245,22 @@ def download_soundcloud_audio(url):
     }
     
     try:
-        log_output(f"[>] Downloading to: {str(ydl_options['outtmpl']).split('%')[0]}", "ok")
-        log_output("[>] Downloading audio...", "ok")
+        logger.log_output(f"[>] Downloading to: {str(ydl_options['outtmpl']).split('%')[0]}", "ok")
+        logger.log_output("[>] Downloading audio...", "ok")
 
     # To not print the error
         with youtube_dl.YoutubeDL(ydl_options) as ydl:
             try:
                 ydl.download([url]) # The actual download function. The surrounding ones are decorative.
             except Exception as e:
-                log_output(f"[!] Error while downloading: {e}", "bad")
+                logger.log_output(f"[!] Error while downloading: {e}", "bad")
                 return
             
-        log_output("[+] Audio download successful!", "good")
-        log_output(f"[+] Downloaded audio to '{filename}'", "good")
+        logger.log_output("[+] Audio download successful!", "good")
+        logger.log_output(f"[+] Downloaded audio to '{filename}'", "good")
         
     except Exception as e:
-        log_output(f"[!] Error: {e}", "bad")
+        logger.log_output(f"[!] Error: {e}", "bad")
         
 def check_custom_dir():
     # Returns if custom directory toggle is off
@@ -286,24 +285,24 @@ def main():
 
     # Returns if they have both download_image and download_audio as false
     if not download_sc_audio and not download_sc_image:
-        log_output("[!] You have both 'download image' and 'download audio' toggled off. Please toggle at least one then try again.", "bad")
+        logger.log_output("[!] You have both 'download image' and 'download audio' toggled off. Please toggle at least one then try again.", "bad")
         return
 
     # Checks if it has custom directory toggled
     # Then checks if the custom directory exists    
     if custom_dir_toggle:
-        log_output(f"[>] Checking directory: {str(custom_dir)}", "ok")
+        logger.log_output(f"[>] Checking directory: {str(custom_dir)}", "ok")
     elif custom_dir_toggle and custom_dir == "":
-        log_output("[!] Custom directory has been set to current directory automatically. Did you leave 'custom_directory' blank?", "ok")
+        logger.log_output("[!] Custom directory has been set to current directory automatically. Did you leave 'custom_directory' blank?", "ok")
     else:
-        log_output(f"[>] Checking directory: {str(downloads_path)}", "ok")
+        logger.log_output(f"[>] Checking directory: {str(downloads_path)}", "ok")
 
     file_path_error_code = check_custom_dir()
     if file_path_error_code == 303:
-        log_output(f"[!] ERROR CODE 303: Directory {str(custom_dir)} does not exist.", "bad")
+        logger.log_output(f"[!] ERROR CODE 303: Directory {str(custom_dir)} does not exist.", "bad")
         return
     else:
-        log_output("[+] Directory exists. Continuing download process.", "good")
+        logger.log_output("[+] Directory exists. Continuing download process.", "good")
         
         
     response = requests.get(final_url)
@@ -316,7 +315,7 @@ def main():
         
         # Edit the metadata
         audio_path = rf'{filename}'
-        log_output(f"[*] Audio path: {audio_path}", "default")
+        logger.log_output(f"[*] Audio path: {audio_path}", "default")
 
         if edit_metadata:
             try:
@@ -334,29 +333,29 @@ def main():
                 
                 try:
                     audio.tags.add(WOAR(encoding=3, url=final_url))
-                    log_output("[+] Successfully edited metadata audio origin to url.", "good")
+                    logger.log_output("[+] Successfully edited metadata audio origin to url.", "good")
                 except:
-                    log_output("[!] Minor error, could not edit audio origin to url.", "ok")
+                    logger.log_output("[!] Minor error, could not edit audio origin to url.", "ok")
                     
                 try:
                     audio.tags.add(TIT2(encoding=3, text=audio_title))
-                    log_output("[+] Successfully edited metadata audio title to title.", "good")
+                    logger.log_output("[+] Successfully edited metadata audio title to title.", "good")
                 except:
-                    log_output("[!] Minor error, could not edit metadata audio title to title.", "ok")    
+                    logger.log_output("[!] Minor error, could not edit metadata audio title to title.", "ok")    
                     
                 audio.save()
-                log_output("[+] Successfully edited metadata", "good")
+                logger.log_output("[+] Successfully edited metadata", "good")
             except Exception as e:
-                log_output(f"[!] Error: {e}", "bad")
-                log_output("[!] Failed to edit metadata.", "bad")
+                logger.log_output(f"[!] Error: {e}", "bad")
+                logger.log_output("[!] Failed to edit metadata.", "bad")
     else:
-        log_output("[!] Failed to retrieve page.", "bad")
+        logger.log_output("[!] Failed to retrieve page.", "bad")
         
 if __name__ == "__main__":
     try:
         main()
     except Exception as e:
-        log_output(f"[!] Error: {e}", "bad")
+        logger.log_output(f"[!] Error: {e}", "bad")
         
-    log_output("[*] Press ENTER to close program.", "default")
+    logger.log_output("[*] Press ENTER to close program.", "default")
     input()

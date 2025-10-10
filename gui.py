@@ -5,12 +5,13 @@ import tkinter as tk
 from tkinter import ttk
 from pathlib import Path
 from threading import Thread
-
-# most of these are unused, btw
-from main import validate_url, download_image, get_save_type, clean_name, download_soundcloud_image, hook, download_soundcloud_audio
+from mutagen.id3 import ID3, WOAR, ID3NoHeaderError, TIT2
+from mutagen.mp3 import MP3
+from main import validate_url, download_soundcloud_image, download_soundcloud_audio, load_config, main
+import logger
 
 # Load config file
-main.load_config()
+load_config()
 
 f = open('config.json')
 data = json.load(f)
@@ -22,7 +23,8 @@ custom_dir_toggle = data["custom_directory_toggled"]
 custom_dir = data["custom_directory"]
 edit_metadata = data["edit_metadata"]        
 
-## GUI
+## ------------------------                  GUI              ------------------- ##
+
 root = tk.Tk()
 root.title("Soundcloud Downloader")
 root.geometry('550x300')
@@ -69,26 +71,13 @@ def log_output(string: str, tagName: str = "default"):
     root.after(0, update_log)
 
 # telling main.log_output to use the tkinter version of our function (otherwise it would print everything!)
-main.log_output = log_output
+logger.log_output = log_output
 
-## ------------------------ DOWNLOAD FUNCTIONS ------------------- ##
-custom_dir = Path(custom_dir)
-
-# download_image is in main.py
-        
-# get_save_type is in main.py
-
-# clean_name is in main.py
-
-# download_soundcloud_image is in main.py
-    
+## ------------------------        DOWNLOAD FUNCTIONS        ------------------- ##
+custom_dir = Path(custom_dir)    
 filename = None       
-
-# hook is in main.py
                                      
 downloads_path = Path.home() / "Downloads"
-
-# download_soundcloud_audio is in main.py
 
 ## ------------------------------------------------------------------------------ ##
 
@@ -106,18 +95,54 @@ def main_function(url):
         log_output("[!] You have both 'download image' and 'download audio' toggled off. Please toggle at least one then try again.", "bad")
         return
 
-
-    # compared to main.py, there seems to be a missing section here, -honestly ill just work on it in a bit
-
-
     response = requests.get(final_url)
     
-        # Downloading the audio and image
+    # Downloading the audio and image
     if response.status_code == 200:
         download_soundcloud_audio(final_url)
         download_soundcloud_image(final_url)
 
-        # seems to be another missing section here, as well
+        audio_path = rf'{filename}'
+        if audio_path == None: 
+            audio_path = filename
+        log_output(f"[*] Audio path: {audio_path}", "default")
+       
+
+            
+        # Edit the metadata
+        if edit_metadata:
+            try:
+                audio = MP3(audio_path, ID3=ID3)
+            except:
+                audio = MP3(audio_path)
+                audio.add_tags()
+                audio = MP3(audio_path, ID3=ID3)
+
+            if audio.tags is None:
+                audio.add_tags() 
+            try:
+                audio_name = filename.split("\\")[-1]
+                audio_title = "".join(audio_name.split(".")[:1])
+                
+                try:
+                    audio.tags.add(WOAR(encoding=3, url=final_url))
+                    log_output("[+] Successfully edited metadata audio origin to url.", "good")
+                except:
+                    log_output("[!] Minor error, could not edit audio origin to url.", "ok")
+                    
+                try:
+                    audio.tags.add(TIT2(encoding=3, text=audio_title))
+                    log_output("[+] Successfully edited metadata audio title to title.", "good")
+                except:
+                    log_output("[!] Minor error, could not edit metadata audio title to title.", "ok")    
+                    
+                audio.save()
+                log_output("[+] Successfully edited metadata", "good")
+            except Exception as e:
+                log_output(f"[!] Error: {e}", "bad")
+                log_output("[!] Failed to edit metadata.", "bad")
+    else:
+        log_output("[!] Failed to retrieve page.", "bad")
 
 def threaded_download():
     download_button.configure(state="disabled")
