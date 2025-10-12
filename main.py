@@ -40,8 +40,12 @@ def log_output(string: str, tagName: str = "default"):
         print(Fore.RED + string)
     elif tagName == "default":
         print(Fore.WHITE + string)
+    elif tagName == "info":
+        print(Fore.LIGHTCYAN_EX + string)
     else:
         print(string)
+        
+logger.log_output = log_output
 
 # Loading the JSON file for configuration
 JSON_PASTEBIN = "https://pastebin.com/raw/vKJGU70z" 
@@ -195,7 +199,7 @@ def download_soundcloud_image(url):
                 logger.log_output("[!] Error while getting image name. Image name set to 'image'.", "bad")
                 image_name = "image"
             
-        logger.log_output(f"\n[*] Image source: {image_source}", "ok") 
+        logger.log_output(f"\n[*] Image source: {image_source}", "info") 
         # Get file type to save image as, then add that to image name then download
         save_type = get_save_type()
         image_name = "".join(image_name)
@@ -315,7 +319,7 @@ def main():
         
         # Edit the metadata
         audio_path = rf'{filename}'
-        logger.log_output(f"[*] Audio path: {audio_path}", "default")
+        logger.log_output(f"[*] Audio path: {audio_path}", "info")
 
         if edit_metadata:
             try:
@@ -357,5 +361,5 @@ if __name__ == "__main__":
     except Exception as e:
         logger.log_output(f"[!] Error: {e}", "bad")
         
-    logger.log_output("[*] Press ENTER to close program.", "default")
+    logger.log_output("[*] Press ENTER to close program.", "info")
     input()
